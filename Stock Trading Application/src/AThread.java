@@ -13,9 +13,13 @@ public class AThread implements Runnable{
 	private Socket clientSocket = null;
 	private BufferedReader inputStr = null;
 	private PrintStream outputStr = null;
+	private AThread[] threads;
+	int maxCount;
 	
-	public AThread(Socket clientSocket){
+	public AThread(Socket clientSocket, AThread[] threads){
 		this.clientSocket = clientSocket;
+		this.threads = threads;
+		maxCount = threads.length;
 	}
 	
 	@Override
@@ -90,6 +94,14 @@ public class AThread implements Runnable{
 			}while(flag != 1);
 			outputStr.print("exit");
 			
+			int maxCount = this.maxCount;
+			AThread[] threads = this.threads;
+			
+			for (int i=0; i<maxCount; i++){
+				if (threads[i] == this){
+					threads[i] = null;
+				}
+			}
 			/*
 			 * Close the streams
 			 * */

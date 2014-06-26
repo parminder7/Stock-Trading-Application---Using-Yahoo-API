@@ -50,7 +50,7 @@ public class MyServer {
 				for (i=0; i < maxClient; i++){
 					//servicethread.execute(new AThread(clientSocket));
 					if(threads[i] == null){
-						new Thread((threads[i] = new AThread(clientSocket))).start();
+						new Thread((threads[i] = new AThread(clientSocket, threads))).start();
 						break;
 					}
 				}

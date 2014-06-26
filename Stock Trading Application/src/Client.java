@@ -15,7 +15,7 @@ public class Client {
 	
 	public static void main(String args[]){
 		String host = "localhost";
-		int portNum = 3322;
+		int portNum = 1234;
 		
 		if(args.length < 2){
 			System.out.println("Usage: java Client <host> <portNum>");
