@@ -157,6 +157,6 @@ public class PassHash {
 		PassHash ph = new PassHash();
 		String x = ph.getHashedPassword("parseit");
 		System.out.println(x);
-		System.out.println(ph.validatePassword("parseit ", x));
+		System.out.println(ph.validatePassword("parseit", x));
 	}
 }

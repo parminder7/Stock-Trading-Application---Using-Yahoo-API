@@ -57,7 +57,7 @@ public class Client {
 				
 				System.out.println("Server - " + fromServer);
 				
-				//Reading client input and forward it to server using printstream
+				//Reading client input and forward it to server using print stream
 				
 				System.out.print(">>>> ");
 				fromUser = stdIn.readLine();

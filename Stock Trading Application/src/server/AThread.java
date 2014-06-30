@@ -5,6 +5,9 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 
+import com.User;
+import com.UserAttributes;
+
 /*
  * This 'AThread' class will be used by MyServer to run a thread
  * corresponding to every client request
@@ -39,11 +42,18 @@ public class AThread implements Runnable{
 			String password = inputStr.readLine().trim();
 			
 			/*Create User class with bool authenticateUser() method*/
-			if( !username.equals("user") && !password.equals("pass") ){
-				System.out.println("Invaild username/password\n"+"END");
+			int oldORnew = 0;	//0 for old 1 for new
+			User user = new User();
+			UserAttributes userdetails = user.addORgetUser(username, password, oldORnew);
+			
+			if( userdetails == null ){
+				outputStr.println("Invaild username/password\n"+"END");
 				return;
-			} else{
-				outputStr.println("Hello "+username+" !\n");
+			} 
+			if (oldORnew == 1){
+				outputStr.println("Hello "+username+", You became our member"+" !\n");
+			}else{
+				outputStr.println("Hello "+username+", Welcome back"+" !\n");
 			}
 			
 			int flag = 0;
