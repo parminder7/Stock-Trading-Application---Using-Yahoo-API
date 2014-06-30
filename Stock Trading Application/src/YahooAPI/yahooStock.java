@@ -36,6 +36,7 @@ public class yahooStock implements yahooAPI
 			System.out.println("Exception encountered while retrieving stock price.");
 			//e.printStackTrace();
 		}
+		
 		return -1;
 	}
 }

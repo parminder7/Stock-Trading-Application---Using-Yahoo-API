@@ -1,8 +1,9 @@
 package com;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 public class User {
 	
@@ -12,8 +13,8 @@ public class User {
 	
 	//constructor
 	public User(){
-		UserDBManager mgr = new UserDBManager();
-		userDB = mgr.loadFromUserDB();
+		manager = new UserDBManager();
+		userDB = manager.loadFromUserDB();
 	}
 	
 		
@@ -35,7 +36,7 @@ public class User {
 			flag = 1;
 			ua = new UserAttributes();
 			//Password Security; entering hashed value in database
-			System.out.println("hasddd");
+			System.out.println("hashed");
 			String hashpass = ph.getHashedPassword(password);
 			System.out.println(hashpass);
 			ua.setPassword(hashpass);
@@ -43,9 +44,24 @@ public class User {
 			//Pass 'D' as default value or say initial value
 			ua.addStocks("D");
 			ua.addPurchasedstock("D", 0);
-			manager.updateUserDB(username, ua);
+			userDB.put(username, ua);
+	//		manager.updateUserDB(username, ua);
 			return ua;
 		}
+	}
+	
+	public boolean addStockToUserRecord(String username, UserAttributes userrecord, String stock){
+		System.out.println(userrecord.getStockTrackerSet());
+		userrecord.addStocks(stock);
+		System.out.println(userrecord.getStockTrackerSet());
+		
+		//if record already exists, update that
+		/*if (userDB.containsKey(username)){
+			userDB.get(username).addStocks(stock);
+		}*/
+		userDB.put(username, userrecord);
+		System.out.println("User record updated!");
+		return true;
 	}
 	
 	private boolean isUserExist(String username){
@@ -56,6 +72,13 @@ public class User {
 		String storedHash = userdetails.getPassword();
 		
 		return (ph.validatePassword(password, storedHash));
+	}
+	
+	public boolean saveUserDB(){
+		
+		boolean res = manager.updateUserDB(userDB);
+		
+		return res;
 	}
 	
 	public static void main(String args[]){
@@ -82,7 +105,8 @@ public class User {
 		
 		Map<String, UserAttributes> xx = user1.loadFromUserDB();
 		
-		System.out.println(xx.containsKey("kookoo"));
+		//System.out.println(xx.containsKey("looloo"));
+		
 		
 	}
 }

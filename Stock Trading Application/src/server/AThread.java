@@ -5,6 +5,8 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 
+import YahooAPI.yahooStock;
+
 import com.User;
 import com.UserAttributes;
 
@@ -44,9 +46,9 @@ public class AThread implements Runnable{
 			/*Create User class with bool authenticateUser() method*/
 			int oldORnew = 0;	//0 for old 1 for new
 			User user = new User();
-			UserAttributes userdetails = user.addORgetUser(username, password, oldORnew);
+			UserAttributes userrecord = user.addORgetUser(username, password, oldORnew);
 			
-			if( userdetails == null ){
+			if( userrecord == null ){
 				outputStr.println("Invaild username/password\n"+"END");
 				return;
 			} 
@@ -80,7 +82,16 @@ public class AThread implements Runnable{
 					}
 					else{
 						//double value = stockQuery(requestQ[1]);
-						outputStr.println("Service not available for QUERY\n"+ "Try again...");
+						boolean response = user.addStockToUserRecord(username, userrecord, requestQ[1]);
+						yahooStock finapi = new yahooStock();
+						float value = finapi.getQuote(requestQ[1]);
+						
+						//Tell user if value is not available
+						if (value < 0){
+							outputStr.println("Stock: "+requestQ[1]+"\tStock Value: "+"Not available"+"\n");
+						}else{
+							outputStr.println("Stock: "+requestQ[1]+"\tStock Value: "+value+"\n");
+						}
 					}
 					break;
 					
@@ -101,6 +112,8 @@ public class AThread implements Runnable{
 				
 				case "QUIT":
 				case "quit":
+					boolean res = user.saveUserDB();
+					System.out.println(res+": "+username+" data has successfully stored.");
 					outputStr.println("Thankyou for using this application.\n"+"OFF");
 					flag = 1;
 					break;
