@@ -9,6 +9,7 @@ public class User {
 	
 	private Map<String, UserBean> userDB;
 	PassHash ph = new PassHash();
+	Stock s = new Stock();
 	UserDBManager manager = new UserDBManager();
 	
 	//constructor
@@ -60,12 +61,13 @@ public class User {
 	
 	/**
 	 * This addStockToUserRecord method adds requested stocks into user's stock tracker list
+	 * and respond with stock value
 	 * @param username
 	 * @param userrecord
 	 * @param stock
-	 * @return	true on success else false
+	 * @return	string with stock price for requested stock
 	 */
-	public boolean addStockToUserRecord(String username, UserBean userrecord, String stock){
+	public String addStockToUserRecord(String username, UserBean userrecord, String stock){
 		System.out.println(userrecord.getStockTrackerSet());
 		userrecord.addStocks(stock);
 		System.out.println(userrecord.getStockTrackerSet());
@@ -75,8 +77,13 @@ public class User {
 			userDB.get(username).addStocks(stock);
 		}*/
 		userDB.put(username, userrecord);
+		
+		//also update the stock list
+		s.addStockToStockDB(stock);
+		float stockValue = s.getStockQuote(stock);
+		
 		System.out.println("User record updated!");
-		return true;
+		return String.valueOf(stockValue);
 	}
 	
 	/**
@@ -104,6 +111,24 @@ public class User {
 	 */
 	public HashMap<String, Integer> getUserPurchasedStockList(String username){
 		return (HashMap<String, Integer>) userDB.get(username).getPurchasedStock();
+	}
+	
+	public String userBuyShares(UserBean user, String stockname, int number){
+		Stock s = new Stock();
+		double bill = s.generateBill(stockname, number);
+		if (user.getCashbalance() < bill){
+			return "You don't have sufficient amount";
+		}
+		
+		String answer = s.buyStock(stockname, number);
+		
+		if (answer.equals("ENOTEXIST")){
+			return "Stock doesn't exist";
+		}else if (answer.equals("ENOTAVAILABLE")){
+			return "Server don't have sufficient shares for you";
+		}
+		
+		return answer+" amount has been deducted from your account";
 	}
 	
 	/**

@@ -8,6 +8,7 @@ import java.util.HashSet;
 
 import YahooAPI.yahooStock;
 
+import com.Stock;
 import com.User;
 import com.UserBean;
 
@@ -47,6 +48,7 @@ public class AThread implements Runnable{
 			/*Create User class with bool authenticateUser() method*/
 			int oldORnew = 0;	//0 for old 1 for new
 			User user = new User();
+			Stock ss = new Stock();
 			UserBean userrecord = user.addORgetUser(username, password, oldORnew);
 			
 			if( userrecord == null ){
@@ -83,30 +85,28 @@ public class AThread implements Runnable{
 					}
 					else{
 						//double value = stockQuery(requestQ[1]);
-						boolean response = false;
-						yahooStock finapi = new yahooStock();
-						float value = finapi.getQuote(requestQ[1]);
+						String stockprice = null;
+						//yahooStock finapi = new yahooStock();
+						//float value = finapi.getQuote(requestQ[1]);
+						
+						stockprice = user.addStockToUserRecord(username, userrecord, requestQ[1]);
+						float val = Float.parseFloat(stockprice);
 						
 						//Tell user if value is not available
-						if (value < 0){
-							response = user.addStockToUserRecord(username, userrecord, requestQ[1]);
+						if (val < 0){
 							outputStr.println("Stock: "+requestQ[1]+"\tStock Value: "+"Not available"+"\n");
-						}else if (value == 0){
+						}else if (val == 0){
 							outputStr.println("Stock: "+requestQ[1]+"\tStock Value: "+"Sorry! Not applicable"+"\n");
 						}else{
-							response = user.addStockToUserRecord(username, userrecord, requestQ[1]);
-							outputStr.println("Stock: "+requestQ[1]+"\tStock Value: "+value+"\n");
-						}
-						
-						if(response){
-							System.out.println(username+" stock tracker list updated!");
+							outputStr.println("Stock: "+requestQ[1]+"\tStock Value: "+val+"\n");
 						}
 					}
 					break;
 					
 				case "BUY":
 				case "buy":
-					outputStr.println("Service not available for BUY\n");
+					String resp = user.userBuyShares(userrecord, requestQ[1], Integer.parseInt(requestQ[2]));
+					outputStr.println(resp+"\n");
 					break;
 				
 				case "SELL":

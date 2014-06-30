@@ -267,13 +267,7 @@ public class UserDBManager {
 			System.out.println("UserDBManager-> updateUserDB method says-->"+pce.getMessage());
 		  } catch (TransformerException tfe) {
 			  System.out.println("UserDBManager->  updateUserDB method says-->"+tfe.getMessage());
-		  } /*catch (SAXException e) {
-			// TODO Auto-generated catch block
-			  System.out.println("UserDBManager-> updateUserDB method says-->"+e.getMessage());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.out.println("UserDBManager-> updateUserDB method says-->"+e.getMessage());
-		}*/
+		  } 
 		return false;
 	}
 	
