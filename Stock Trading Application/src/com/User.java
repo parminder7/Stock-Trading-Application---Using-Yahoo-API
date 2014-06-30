@@ -1,13 +1,13 @@
 package com;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+
 
 public class User {
 	
-	private Map<String, UserAttributes> userDB;
+	private Map<String, UserBean> userDB;
 	PassHash ph = new PassHash();
 	UserDBManager manager = new UserDBManager();
 	
@@ -17,10 +17,18 @@ public class User {
 		userDB = manager.loadFromUserDB();
 	}
 	
-		
-	public UserAttributes addORgetUser(String username, String password, int flag){
+	/**
+	 * This addORgetUser method looks for the given user name (or client) record
+	 * if it is already in the database, then it returns the object with recorded value
+	 * else new user record get added
+	 * @param username
+	 * @param password
+	 * @param flag
+	 * @return	UserAttributes object
+	 */
+	public UserBean addORgetUser(String username, String password, int flag){
 		// if user already exists in database get the object
-		UserAttributes ua = null;
+		UserBean ua = null;
 		if (isUserExist(username)){
 			ua = userDB.get(username);
 			System.out.println("Exixt");
@@ -34,7 +42,7 @@ public class User {
 			}
 		}else{
 			flag = 1;
-			ua = new UserAttributes();
+			ua = new UserBean();
 			//Password Security; entering hashed value in database
 			System.out.println("hashed");
 			String hashpass = ph.getHashedPassword(password);
@@ -50,7 +58,14 @@ public class User {
 		}
 	}
 	
-	public boolean addStockToUserRecord(String username, UserAttributes userrecord, String stock){
+	/**
+	 * This addStockToUserRecord method adds requested stocks into user's stock tracker list
+	 * @param username
+	 * @param userrecord
+	 * @param stock
+	 * @return	true on success else false
+	 */
+	public boolean addStockToUserRecord(String username, UserBean userrecord, String stock){
 		System.out.println(userrecord.getStockTrackerSet());
 		userrecord.addStocks(stock);
 		System.out.println(userrecord.getStockTrackerSet());
@@ -64,49 +79,63 @@ public class User {
 		return true;
 	}
 	
+	/**
+	 * This getUserStockTrackerList method returns the list of stocks the user is maintaining
+	 * @param username
+	 * @return	stock list
+	 */
+	public HashSet<String> getUserStockTrackerList(String username){
+		return userDB.get(username).getStockTrackerSet();
+	}
+	
+	/**
+	 * This getUserBalance gives the available balance of user
+	 * @param username
+	 * @return	balance in double
+	 */
+	public double getUserBalance(String username){
+		return userDB.get(username).getCashbalance();
+	}
+	
+	/**
+	 * This getUserPurchasedStockList gives the list of purchased stock by a user
+	 * @param username
+	 * @return	HashMap <Stock, # of stocks>
+	 */
+	public HashMap<String, Integer> getUserPurchasedStockList(String username){
+		return (HashMap<String, Integer>) userDB.get(username).getPurchasedStock();
+	}
+	
+	/**
+	 * This isUserExists method checks whether user record already exists in database
+	 * @param username
+	 * @return	true on success else false
+	 */
 	private boolean isUserExist(String username){
 		return (userDB.containsKey(username));
 	}
 
-	private boolean checkPassword(UserAttributes userdetails, String password){
+	/**
+	 * This checkPassword method validate user's given credentials 
+	 * @param userdetails
+	 * @param password
+	 * @return	true on success else false
+	 */
+	private boolean checkPassword(UserBean userdetails, String password){
 		String storedHash = userdetails.getPassword();
 		
 		return (ph.validatePassword(password, storedHash));
 	}
 	
+	/**
+	 * This saveUserDB method saves the user record on exit
+	 * @return	return true on success else false
+	 */
 	public boolean saveUserDB(){
 		
 		boolean res = manager.updateUserDB(userDB);
 		
 		return res;
 	}
-	
-	public static void main(String args[]){
-
-		UserDBManager user1 = new UserDBManager();
-		//System.out.println(user1.loadFromUserDB());		
-		System.out.println("----------------------------------");
-		UserAttributes ua = new UserAttributes();
-		ua.setCashbalance(1999.0);
-		ua.setPassword("xyz");
-		//Map<String, Integer> m = new HashMap<String, Integer>();
-		//m.put("GOOG", 2);
-		ua.addPurchasedstock("CME", 2);
-		ua.addPurchasedstock("JO", 2);
-		//ua.setPurchasedStock(m);
 		
-		//HashSet<String> s = new HashSet<String>();
-		//s.add("GOOG");
-		//s.add("F");
-		//ua.setStockTrackerSet(s);
-		ua.addStocks("CME");
-		ua.addStocks("F");
-		//user1.updateUserDB("Gurman", ua);
-		
-		Map<String, UserAttributes> xx = user1.loadFromUserDB();
-		
-		//System.out.println(xx.containsKey("looloo"));
-		
-		
-	}
 }

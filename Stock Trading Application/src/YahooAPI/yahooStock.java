@@ -17,6 +17,8 @@ public class yahooStock implements yahooAPI
 			URLConnection conn = yahooURL.openConnection();
 			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			String readResponse = "";
+			
+			
 			if((readResponse = in.readLine() )!=null)
 			{
 				String[] readStockInfo = readResponse.split(",");

@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.util.HashSet;
 
 import YahooAPI.yahooStock;
 
 import com.User;
-import com.UserAttributes;
+import com.UserBean;
 
 /*
  * This 'AThread' class will be used by MyServer to run a thread
@@ -46,7 +47,7 @@ public class AThread implements Runnable{
 			/*Create User class with bool authenticateUser() method*/
 			int oldORnew = 0;	//0 for old 1 for new
 			User user = new User();
-			UserAttributes userrecord = user.addORgetUser(username, password, oldORnew);
+			UserBean userrecord = user.addORgetUser(username, password, oldORnew);
 			
 			if( userrecord == null ){
 				outputStr.println("Invaild username/password\n"+"END");
@@ -82,15 +83,23 @@ public class AThread implements Runnable{
 					}
 					else{
 						//double value = stockQuery(requestQ[1]);
-						boolean response = user.addStockToUserRecord(username, userrecord, requestQ[1]);
+						boolean response = false;
 						yahooStock finapi = new yahooStock();
 						float value = finapi.getQuote(requestQ[1]);
 						
 						//Tell user if value is not available
 						if (value < 0){
+							response = user.addStockToUserRecord(username, userrecord, requestQ[1]);
 							outputStr.println("Stock: "+requestQ[1]+"\tStock Value: "+"Not available"+"\n");
+						}else if (value == 0){
+							outputStr.println("Stock: "+requestQ[1]+"\tStock Value: "+"Sorry! Not applicable"+"\n");
 						}else{
+							response = user.addStockToUserRecord(username, userrecord, requestQ[1]);
 							outputStr.println("Stock: "+requestQ[1]+"\tStock Value: "+value+"\n");
+						}
+						
+						if(response){
+							System.out.println(username+" stock tracker list updated!");
 						}
 					}
 					break;
@@ -107,7 +116,19 @@ public class AThread implements Runnable{
 				
 				case "GETINFO":
 				case "getinfo":
-					outputStr.println("Service not available for GETINFO\n");
+					outputStr.println("****************************************************************");
+					outputStr.println("\t User -> "+username+"\t\t Balance -> "+user.getUserBalance(username));
+					
+					HashSet<String> stocks = user.getUserStockTrackerList(username);
+					yahooStock finapi = new yahooStock();
+					outputStr.print("\t Stocks tracking -> ");
+					for (String str : stocks){
+						if (str.equals("D"))
+							continue;
+						outputStr.print(str+" : "+finapi.getQuote(str)+"  |");
+					}
+					
+					outputStr.println("\n\t****************************************************************");
 					break;
 				
 				case "QUIT":

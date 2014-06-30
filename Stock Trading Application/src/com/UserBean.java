@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-public class UserAttributes {
+public class UserBean {
 	private String password;
 	private HashSet<String> stockTrackerSet = new HashSet<String>();
 	private double cashbalance;
