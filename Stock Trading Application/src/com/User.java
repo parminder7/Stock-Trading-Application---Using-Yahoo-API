@@ -1,5 +1,6 @@
 package com;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -76,14 +77,20 @@ public class User {
 		/*if (userDB.containsKey(username)){
 			userDB.get(username).addStocks(stock);
 		}*/
-		userDB.put(username, userrecord);
 		
 		//also update the stock list
-		s.addStockToStockDB(stock);
-		float stockValue = s.getStockQuote(stock);
+		//s.addStockToStockDB(stock);
+		String result = s.getStockQuote(stock);
 		
+		if (result.equals("ENOTAVAILABLE")){
+			return "Not available";
+		}else if (result.equals("ENOTAPPLICABLE")){
+			return "Not applicable";
+		}
+		
+		userDB.put(username, userrecord);
 		System.out.println("User record updated!");
-		return String.valueOf(stockValue);
+		return result;
 	}
 	
 	/**
@@ -113,10 +120,20 @@ public class User {
 		return (HashMap<String, Integer>) userDB.get(username).getPurchasedStock();
 	}
 	
-	public String userBuyShares(UserBean user, String stockname, int number){
+	/**
+	 * This userBuyShares method takes users request related to purchase share
+	 * and returns the deducted amount or some error response
+	 * @param user
+	 * @param stockname
+	 * @param number
+	 * @return amount or type of errors
+	 */
+	public String userBuyShares(String username, String stockname, int number){
 		Stock s = new Stock();
 		double bill = s.generateBill(stockname, number);
-		if (user.getCashbalance() < bill){
+		double total = userDB.get(username).getCashbalance();
+		
+		if (total < bill){
 			return "You don't have sufficient amount";
 		}
 		
@@ -128,7 +145,63 @@ public class User {
 			return "Server don't have sufficient shares for you";
 		}
 		
+		double val = Double.parseDouble(answer);
+		DecimalFormat f = new DecimalFormat("##.00");
+	    answer = f.format(val);
+	    
+		userDB.get(username).setCashbalance(total - Double.parseDouble(answer));
+		Map<String, Integer> ps = new HashMap<String, Integer>();
+		
+		try{
+			int num = userDB.get(username).getPurchasedStock().get(stockname);
+			ps.put(stockname, num+number);
+		}
+		catch (NullPointerException ex){
+			ps.put(stockname, number);
+		}
+		userDB.get(username).setPurchasedStock(ps);
+		
 		return answer+" amount has been deducted from your account";
+	}
+	
+	/**
+	 * This userSellShares method sells the requested shares and added to the server list
+	 * amount get transferred to user account
+	 * @param username
+	 * @param stockname
+	 * @param number
+	 * @return	error string or added amount 
+	 */
+	public String userSellShares(String username, String stockname, int number){
+		Stock s = new Stock();
+		
+		double total = userDB.get(username).getCashbalance();
+		System.out.println("Total shares:"+userDB.get(username).getPurchasedStock().get(stockname));
+		int totalshare = userDB.get(username).getPurchasedStock().get(stockname);
+		
+		
+		if (totalshare < number){
+			return "You have less shares than total selling units";
+		}
+		
+		String answer = s.buyStock(stockname, number);
+		
+		if (answer.equals("ENOTEXIST")){
+			return "Stock doesn't exist";
+		}
+		
+		double val = Double.parseDouble(answer);
+		DecimalFormat f = new DecimalFormat("##.00");
+	    answer = f.format(val);
+	    
+		userDB.get(username).setCashbalance(total + Double.parseDouble(answer));
+		Map<String, Integer> ps = new HashMap<String, Integer>();
+
+		int num = userDB.get(username).getPurchasedStock().get(stockname);
+		ps.put(stockname, num-number);
+
+		userDB.get(username).setPurchasedStock(ps);
+		return answer+" amount has been added to your account";
 	}
 	
 	/**

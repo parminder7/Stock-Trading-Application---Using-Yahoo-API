@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import YahooAPI.yahooStock;
 
-import com.Stock;
 import com.User;
 import com.UserBean;
 
@@ -48,7 +49,7 @@ public class AThread implements Runnable{
 			/*Create User class with bool authenticateUser() method*/
 			int oldORnew = 0;	//0 for old 1 for new
 			User user = new User();
-			Stock ss = new Stock();
+			
 			UserBean userrecord = user.addORgetUser(username, password, oldORnew);
 			
 			if( userrecord == null ){
@@ -89,29 +90,27 @@ public class AThread implements Runnable{
 						//yahooStock finapi = new yahooStock();
 						//float value = finapi.getQuote(requestQ[1]);
 						
+						//add stock to user stock tracker list and get value
 						stockprice = user.addStockToUserRecord(username, userrecord, requestQ[1]);
-						float val = Float.parseFloat(stockprice);
+						
 						
 						//Tell user if value is not available
-						if (val < 0){
-							outputStr.println("Stock: "+requestQ[1]+"\tStock Value: "+"Not available"+"\n");
-						}else if (val == 0){
-							outputStr.println("Stock: "+requestQ[1]+"\tStock Value: "+"Sorry! Not applicable"+"\n");
-						}else{
-							outputStr.println("Stock: "+requestQ[1]+"\tStock Value: "+val+"\n");
-						}
+						
+						outputStr.println("Stock: "+requestQ[1]+"\tStock Value: "+stockprice+"\n");
+						
 					}
 					break;
 					
 				case "BUY":
 				case "buy":
-					String resp = user.userBuyShares(userrecord, requestQ[1], Integer.parseInt(requestQ[2]));
+					String resp = user.userBuyShares(username, requestQ[1], Integer.parseInt(requestQ[2]));
 					outputStr.println(resp+"\n");
 					break;
 				
 				case "SELL":
 				case "sell":
-					outputStr.println("Service not available for SELL\n");
+					String res = user.userSellShares(username, requestQ[1], Integer.parseInt(requestQ[2]));
+					outputStr.println(res+"\n");
 					break;
 				
 				case "GETINFO":
@@ -125,7 +124,18 @@ public class AThread implements Runnable{
 					for (String str : stocks){
 						if (str.equals("D"))
 							continue;
-						outputStr.print(str+" : "+finapi.getQuote(str)+"  |");
+						outputStr.print(str+" : "+finapi.getQuote(str)+" |");
+					}
+					
+					Map<String, Integer> purstocklist = new HashMap<String, Integer>();
+					
+					purstocklist = user.getUserPurchasedStockList(username);
+					outputStr.println("\n\t Order List -> ");
+					for (Map.Entry<String, Integer> entry1 : purstocklist.entrySet()) {
+						if (entry1.getKey().equals("D")){
+							continue;
+						}
+					    outputStr.println(entry1.getKey() + ":"+ entry1.getValue()+" |");
 					}
 					
 					outputStr.println("\n\t****************************************************************");
@@ -133,8 +143,8 @@ public class AThread implements Runnable{
 				
 				case "QUIT":
 				case "quit":
-					boolean res = user.saveUserDB();
-					System.out.println(res+": "+username+" data has successfully stored.");
+					boolean res0 = user.saveUserDB();
+					System.out.println(res0+": "+username+" data has successfully stored.");
 					outputStr.println("Thankyou for using this application.\n"+"OFF");
 					flag = 1;
 					break;
