@@ -34,7 +34,7 @@ public class MyServer {
 			serversocket = new ServerSocket(portNum);
 			StockDemon demon = new StockDemon();
 			Thread thread = new Thread(demon);
-			thread.run();
+			thread.start();
 		}catch (SocketException ex){
 			System.out.println("Server Socket Exception ->"+ex.getMessage());
 		} catch (IOException e) {

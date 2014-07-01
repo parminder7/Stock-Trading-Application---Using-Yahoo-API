@@ -130,12 +130,12 @@ public class AThread implements Runnable{
 					Map<String, Integer> purstocklist = new HashMap<String, Integer>();
 					
 					purstocklist = user.getUserPurchasedStockList(username);
-					outputStr.println("\n\t Order List -> ");
+					outputStr.print("\n\t Order List -> ");
 					for (Map.Entry<String, Integer> entry1 : purstocklist.entrySet()) {
 						if (entry1.getKey().equals("D")){
 							continue;
 						}
-					    outputStr.println(entry1.getKey() + ":"+ entry1.getValue()+" |");
+					    outputStr.print(entry1.getKey() + ":"+ entry1.getValue()+" |");
 					}
 					
 					outputStr.println("\n\t****************************************************************");

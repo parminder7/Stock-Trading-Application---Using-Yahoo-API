@@ -69,9 +69,6 @@ public class User {
 	 * @return	string with stock price for requested stock
 	 */
 	public String addStockToUserRecord(String username, UserBean userrecord, String stock){
-		System.out.println(userrecord.getStockTrackerSet());
-		userrecord.addStocks(stock);
-		System.out.println(userrecord.getStockTrackerSet());
 		
 		//if record already exists, update that
 		/*if (userDB.containsKey(username)){
@@ -87,7 +84,7 @@ public class User {
 		}else if (result.equals("ENOTAPPLICABLE")){
 			return "Not applicable";
 		}
-		
+		userrecord.addStocks(stock);
 		userDB.put(username, userrecord);
 		System.out.println("User record updated!");
 		return result;
